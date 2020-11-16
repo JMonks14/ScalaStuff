@@ -1,18 +1,15 @@
 package runnable
 
-import java.util.Scanner
+import java.util.{InputMismatchException, Scanner}
 
 import board.{Board, Ship, Square}
 
 
 object Game extends App {
 
-  val scanner = new Scanner(System.in)
+  println("Hello, welcome to battleships, what size board would you like to play on? (please enter an integer from 3 - 10)")
 
-  println("Hello, welcome to battleships, what size board would you like to play on?")
-
-  val boardsize = scanner.nextInt()
-
+  val boardsize = getBoardSize
 
   val board = new Board(boardsize)
   val board2 = new Board(boardsize)
@@ -44,6 +41,26 @@ object Game extends App {
       getSquare
       }
     }
+
+  def getBoardSize: Int = {
+    def getInt: Int = {
+      try {
+        val scanner = new Scanner(System.in)
+        scanner.nextInt()
+      } catch {
+        case e: InputMismatchException => {
+          println("You must enter an integer between 3 and 10")
+          getInt
+        }
+      }
+    }
+    val input = getInt
+    if (!(input >= 3 && input <= 10)) {
+      println("You must enter an integer between 3 and 10")
+      getBoardSize
+    } else input
+
+  }
 
   def getSquareIndex(square: (Char, Int)) = Square.alphabet.indexOf(square._1) * boardsize + square._2 - 1
 
