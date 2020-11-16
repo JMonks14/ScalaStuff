@@ -38,12 +38,12 @@ class Board(val size: Int) {
 
   }
 
-  def shoot(square: String) = {
-
+  def shoot(square: String): String = {
+    var ret = "miss"
     val target = squareList.filter(s => s.toString.equals(square)).head
     if (target.hit) {
       println("You have already shot at that square")
-      false
+      ret = "fail"
     }
     else {
       target.shoot
@@ -51,12 +51,13 @@ class Board(val size: Int) {
           ship.squaresOccupied.foreach(s => {
             if (s.toString.equals(square)) {
               ship.hit
+              ret = "hit"
               if (ship.hits >= ship.length) ship.sink
             }
           })
         )
-      true
     }
+    ret
   }
 
   def showShots = {

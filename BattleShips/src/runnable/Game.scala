@@ -74,7 +74,6 @@ object Game extends App {
       println("That square is unavailable for the size and position of this ship, please try again")
       getSecondSquareIndex(board, frontSquareIndex, getSquare, ship)
     }
-
   }
 
   def getTarget: String = {
@@ -87,12 +86,29 @@ object Game extends App {
     }
   }
 
-  def shoot(board: Board, target: String): Unit = {
+  def shoot(board: Board, target: String, acc: Int): Unit = {
     val shot = board.shoot(target)
-    if (shot) {}
-    else {
-      println("please specify a new target")
-      shoot(board, getTarget)
+    if (acc == 0) {
+    shot match {
+      case "hit" => {
+        println("Shoot again!")
+        shoot(board, getTarget, acc + 1)
+      }
+      case "fail" =>  {
+        println("please specify a new target")
+        shoot(board, getTarget, acc)
+      }
+      case "miss" =>
+    }
+  } else {
+      shot match {
+        case "hit" =>
+        case "miss" =>
+        case "fail" => {
+          println("please specify a new target")
+          shoot(board, getTarget, acc + 1)
+        }
+      }
     }
   }
 
@@ -108,7 +124,6 @@ object Game extends App {
     }
     println("Please choose a square for the front of your ship")
     val frontIndex = pickSquare1(0, getSquareIndex(getSquare))
-
 
     def pickSquare2(sNum:Int, index: Int): Unit = {
       val placed = board.chooseSquare(sNum, index, shipNo)
@@ -135,25 +150,24 @@ object Game extends App {
       println(s"Turn $acc: Player 1")
       if (acc > 1) {
         println("Your shots so far:")
-        board.showShots
+        board2.showShots
       }
       println("Choose a target")
-      shoot(board, getTarget)
+      shoot(board2, getTarget, 0)
       playTillSunk(acc + 1)
     } else {
       println("")
       println(s"Turn $acc: Player 2")
       if (acc > 1) {
         println("Your shots so far:")
-        board2.showShots
+        board.showShots
       }
       println("Choose a target")
-      shoot(board2, getTarget)
+      shoot(board, getTarget, 0)
       playTillSunk(acc + 1)
     }
   }
-
-  }
+}
 
 
 
