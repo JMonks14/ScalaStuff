@@ -27,7 +27,7 @@ object Square {
   val alphabet = Array('A','B','C','D','E','F','G','H','I','J')
 
   def isValidDesignation(square: String): Boolean = {
-    if (square.length > 2) false
+    if (square.length != 2) false
     else if (!alphabet.contains(square.charAt(0))) false
     else if (!(square(1).asDigit >= 1)) false
     else true

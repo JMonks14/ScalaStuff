@@ -91,8 +91,10 @@ object Game extends App {
     if (acc == 0) {
     shot match {
       case "hit" => {
-        println("Shoot again!")
-        shoot(board, getTarget, acc + 1)
+        if (!(board.ships.count(ship => ship.sunk) >= board.ships.length)) {
+          println("Shoot again!")
+          shoot(board, getTarget, acc + 1)
+        }
       }
       case "fail" =>  {
         println("please specify a new target")
@@ -147,7 +149,7 @@ object Game extends App {
     else if (shipsSunk2 >= board.ships.length) println("Game Over, Player 1 wins!")
     else if (acc % 2 == 1){
       println("")
-      println(s"Turn $acc: Player 1")
+      println(s"Turn ${(acc+1)/2}: Player 1")
       if (acc > 1) {
         println("Your shots so far:")
         board2.showShots
@@ -157,7 +159,7 @@ object Game extends App {
       playTillSunk(acc + 1)
     } else {
       println("")
-      println(s"Turn $acc: Player 2")
+      println(s"Turn ${(acc+1)/2}: Player 2")
       if (acc > 1) {
         println("Your shots so far:")
         board.showShots
