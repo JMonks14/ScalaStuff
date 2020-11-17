@@ -22,6 +22,10 @@ object Game extends App {
 
   placeShip(board,1)
 
+  println("Player 1: Where would you like to place your third ship?")
+
+  placeShip(board,2)
+
   println("Player 2: Where would you like to place your first ship?")
 
   placeShip(board2,0)
@@ -29,6 +33,10 @@ object Game extends App {
   println("Player 2: Where would you like to place your second ship?")
 
   placeShip(board2,1)
+
+  println("Player 2: Where would you like to place your third ship?")
+
+  placeShip(board2,2)
 
   playTillSunk(1)
 
@@ -64,17 +72,17 @@ object Game extends App {
 
   def getSquareIndex(square: (Char, Int)) = Square.alphabet.indexOf(square._1) * boardsize + square._2 - 1
 
-  def getSecondSquareIndex(board: Board, frontSquareIndex: Int, square: (Char, Int), ship: Ship): Int = {
-    val frontSquare = board.squareList(frontSquareIndex)
-    val index = Square.alphabet.indexOf(square._1) * boardsize + square._2 - 1
-    val backSquare = board.squareList(index)
-
-    if (frontSquare.isInline(backSquare) && board.isValidDist(ship.length, frontSquareIndex, index)) index
-    else {
-      println("That square is unavailable for the size and position of this ship, please try again")
-      getSecondSquareIndex(board, frontSquareIndex, getSquare, ship)
-    }
-  }
+//  def getSecondSquareIndex(board: Board, frontSquareIndex: Int, square: (Char, Int), ship: Ship): Int = {
+//    val frontSquare = board.squareList(frontSquareIndex)
+//    val index = Square.alphabet.indexOf(square._1) * boardsize + square._2 - 1
+//    val backSquare = board.squareList(index)
+//
+//    if (frontSquare.isInline(backSquare) && board.isValidDist(ship.length, frontSquareIndex, index)) index
+//    else {
+//      println("That square is unavailable for the size and position of this ship, please try again")
+//      getSecondSquareIndex(board, frontSquareIndex, getSquare, ship)
+//    }
+//  }
 
   def getTarget: String = {
     val tScanner = new Scanner(System.in)
@@ -117,31 +125,41 @@ object Game extends App {
   def placeShip(board: Board,shipNo: Int) = {
 
     def pickSquare1(sNum: Int, index: Int): Int = {
-      val placed = board.chooseSquare(sNum, index, shipNo)
-      if (placed) index
-      else {
+      if (board.squareList(index).containsShip) {
         println("This square is already occupied, please choose another")
         pickSquare1(sNum, getSquareIndex(getSquare))
+      }
+      else {
+        val possibles = board.dispPossiblePlaces(index, board.ships(shipNo).length)
+        if (possibles.isEmpty) {
+          println("There is not enough space here to fit a ship, please choose another space")
+          pickSquare1(sNum, getSquareIndex(getSquare))
+        } else {
+          index
+        }
       }
     }
     println("Please choose a square for the front of your ship")
     val frontIndex = pickSquare1(0, getSquareIndex(getSquare))
+    println("Please choose a square for the back of your ship, your possible choices are:")
+    val possibles = board.dispPossiblePlaces(frontIndex, board.ships(shipNo).length)
+    possibles.foreach(sq => println(sq.toString))
 
-    def pickSquare2(sNum:Int, index: Int): Unit = {
-      val placed = board.chooseSquare(sNum, index, shipNo)
-      if (placed) {}
+    def getBackIndex(index: Int): Int = {
+      if (possibles contains board.squareList(index)) index
       else {
-        println("This square is already occupied, please choose another")
-        pickSquare2(sNum, getSecondSquareIndex(board, frontIndex ,getSquare, board.ships(shipNo)))
+        println("That square is not a viable option for this ship")
+        getBackIndex(getSquareIndex(getSquare))
       }
     }
+    val backIndex = getBackIndex(getSquareIndex(getSquare))
 
-    println("Please choose a square for the back of your ship, your possible choices are:")
-    board.dispPossiblePlaces(frontIndex, board.ships(shipNo).length)
-    val backIndex = getSecondSquareIndex(board, frontIndex, getSquare, board.ships(shipNo))
-    pickSquare2(1, backIndex)
-
+    val allIndexes = {
+      board.getAllSquaresInLine(board.ships(shipNo).length,board.squareList(frontIndex), board.squareList(backIndex)).map(sq => board.squareList.indexOf(sq))
     }
+
+    allIndexes.foreach(i => board.chooseSquare(allIndexes.indexOf(i),i, shipNo))
+  }
 
   def playTillSunk(acc: Int): Unit = {
     val shipsSunk1 = board.ships.count(ship => ship.sunk)

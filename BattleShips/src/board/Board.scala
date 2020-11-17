@@ -16,10 +16,9 @@ class Board(val size: Int) {
       }
       fillArray(0, 1, 0)
     squares
-
   }
 
-  val ships = Array(new Ship(2), new Ship(2))
+  val ships = Array(new Ship(2), new Ship(3), new Ship(3))
 
   def locateShips = ships.foreach(sh => {
     println(s"Ship ${ships.indexOf(sh) + 1}:")
@@ -35,7 +34,6 @@ class Board(val size: Int) {
       ships(ship).addSquare(sNum,squareList(index))
       true
     }
-
   }
 
   def shoot(square: String): String = {
@@ -75,7 +73,46 @@ class Board(val size: Int) {
   }
 
   def dispPossiblePlaces(frontIndex: Int, length: Int) = {
-    squareList.filter(sq => isValidDist(length, frontIndex, squareList.indexOf(sq)) && sq.isInline(squareList(frontIndex))).foreach(s => println(s.toString))
+    val possibilities = squareList.filter(sq => isValidDist(length, frontIndex, squareList.indexOf(sq)) && sq.isInline(squareList(frontIndex)))
+    possibilities.filter(sq => isBackViable(length, sq,  squareList(frontIndex)))
+  }
+
+  def getAllSquaresInLine(length: Int, square1: Square, square2: Square) = {
+    val squares = new Array[Square](length)
+    val (first, second) = {
+      if (squareList.indexOf(square1) < squareList.indexOf(square2)) {
+        (square1, square2)
+      } else {
+        (square2, square1)
+      }
+    }
+    squares(0) = first
+    if (first.letter.equals(second.letter)) {
+      def loadArrayHorizontal(acc: Int, index: Int): Unit = {
+        if (squareList(index).equals(second)) squares(acc) = squareList(index)
+        else {
+          squares(acc) = squareList(index)
+          loadArrayHorizontal(acc + 1, index + 1)
+        }
+      }
+      loadArrayHorizontal(1, squareList.indexOf(first) + 1)
+    }
+    else {
+      def loadArrayVertical(acc: Int, index: Int): Unit = {
+        if (squareList(index).equals(second)) squares(acc) = squareList(index)
+        else {
+          squares(acc) = squareList(index)
+          loadArrayVertical(acc + 1, index + size)
+        }
+      }
+      loadArrayVertical(1, squareList.indexOf(first) + size)
+    }
+    squares
+  }
+
+  def isBackViable(length: Int, square1: Square, square2: Square): Boolean = {
+    val squares = getAllSquaresInLine(length, square1, square2)
+    squares forall (sq => !sq.containsShip)
   }
 
 }
