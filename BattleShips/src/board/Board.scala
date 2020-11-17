@@ -72,7 +72,10 @@ class Board(val size: Int) {
     val diff = Math.abs(frontIndex-backIndex)
     if (length - 1 == diff || diff == this.size * (length - 1)) true
     else false
+  }
 
+  def dispPossiblePlaces(frontIndex: Int, length: Int) = {
+    squareList.filter(sq => isValidDist(length, frontIndex, squareList.indexOf(sq)) && sq.isInline(squareList(frontIndex))).foreach(s => println(s.toString))
   }
 
 }

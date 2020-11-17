@@ -136,7 +136,8 @@ object Game extends App {
       }
     }
 
-    println("Please choose a square for the back of your ship")
+    println("Please choose a square for the back of your ship, your possible choices are:")
+    board.dispPossiblePlaces(frontIndex, board.ships(shipNo).length)
     val backIndex = getSecondSquareIndex(board, frontIndex, getSquare, board.ships(shipNo))
     pickSquare2(1, backIndex)
 
