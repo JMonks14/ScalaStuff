@@ -7,43 +7,33 @@ import board.{Board, Ship, Square}
 
 object Game extends App {
 
-  println("Hello, welcome to battleships, what size board would you like to play on? (please enter an integer from 3 - 10)")
+  println("Hello, welcome to battleships, would you like to play a game?")
 
-  val boardsize = getBoardSize
+  val boardsize = 12
 
   val board = new Board(boardsize)
   val board2 = new Board(boardsize)
 
-  println("Player 1: Where would you like to place your first ship?")
+  println("Player 1 - You may place your ships")
 
-  placeShip(board,0)
+  board.ships.foreach(sh => {
+    println("Player 1 - Ship " + (board.ships.indexOf(sh) + 1) + ": " + sh.toString)
+    placeShip(board, board.ships.indexOf(sh))
+  })
 
-  println("Player 1: Where would you like to place your second ship?")
+  println("Player 2 - You may place your ships")
 
-  placeShip(board,1)
-
-  println("Player 1: Where would you like to place your third ship?")
-
-  placeShip(board,2)
-
-  println("Player 2: Where would you like to place your first ship?")
-
-  placeShip(board2,0)
-
-  println("Player 2: Where would you like to place your second ship?")
-
-  placeShip(board2,1)
-
-  println("Player 2: Where would you like to place your third ship?")
-
-  placeShip(board2,2)
+  board2.ships.foreach(sh => {
+    println("Player 2 - Ship " + (board2.ships.indexOf(sh) + 1) + ": " + sh.toString)
+    placeShip(board2, board2.ships.indexOf(sh))
+  })
 
   playTillSunk(1)
 
   def getSquare: (Char, Int) = {
     val sqScanner = new Scanner(System.in)
     val input = sqScanner.nextLine.toUpperCase
-    if (Square.isValidDesignation(input) && input(1).asDigit <= boardsize)  (input.charAt(0), input(1).asDigit)
+    if (Square.isValidDesignation(input) && input(1).asDigit <= boardsize)  (input.charAt(0), input.tail.toInt)
     else {
       println("Invalid input, please try again")
       getSquare
@@ -71,18 +61,6 @@ object Game extends App {
   }
 
   def getSquareIndex(square: (Char, Int)) = Square.alphabet.indexOf(square._1) * boardsize + square._2 - 1
-
-//  def getSecondSquareIndex(board: Board, frontSquareIndex: Int, square: (Char, Int), ship: Ship): Int = {
-//    val frontSquare = board.squareList(frontSquareIndex)
-//    val index = Square.alphabet.indexOf(square._1) * boardsize + square._2 - 1
-//    val backSquare = board.squareList(index)
-//
-//    if (frontSquare.isInline(backSquare) && board.isValidDist(ship.length, frontSquareIndex, index)) index
-//    else {
-//      println("That square is unavailable for the size and position of this ship, please try again")
-//      getSecondSquareIndex(board, frontSquareIndex, getSquare, ship)
-//    }
-//  }
 
   def getTarget: String = {
     val tScanner = new Scanner(System.in)
@@ -122,8 +100,7 @@ object Game extends App {
     }
   }
 
-  def placeShip(board: Board,shipNo: Int) = {
-
+  def placeShip(board: Board, shipNo: Int) = {
     def pickSquare1(sNum: Int, index: Int): Int = {
       if (board.squareList(index).containsShip) {
         println("This square is already occupied, please choose another")
@@ -157,7 +134,6 @@ object Game extends App {
     val allIndexes = {
       board.getAllSquaresInLine(board.ships(shipNo).length,board.squareList(frontIndex), board.squareList(backIndex)).map(sq => board.squareList.indexOf(sq))
     }
-
     allIndexes.foreach(i => board.chooseSquare(allIndexes.indexOf(i),i, shipNo))
   }
 

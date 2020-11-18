@@ -5,7 +5,7 @@ import board.{Board, Square}
 
 object Tests extends App {
 
-  val board = new Board(3)
+  val board = new Board(12)
 
 //  board.listSquares
 
@@ -13,7 +13,10 @@ object Tests extends App {
 
 //  board.getAllSquaresInLine(4, board.squareList(13), board.squareList(1)).foreach(sq => println(sq.toString))
 
+  val index = 140
+  println(board.squareList(index))
+
 println(board.isBackViable(2,board.squareList(0),board.squareList(1)))
-val possibles = board.dispPossiblePlaces(1, 2)
+val possibles = board.dispPossiblePlaces(index, 4)
   possibles.foreach(sq => println(sq.toString))
 }

@@ -24,12 +24,11 @@ class Square(val letter: Char, val number: Int) {
 
 object Square {
 
-  val alphabet = Array('A','B','C','D','E','F','G','H','I','J')
-
+  val alphabet = Array('A','B','C','D','E','F','G','H','I','J','K','L')
   def isValidDesignation(square: String): Boolean = {
-    if (square.length != 2) false
+    if (square.length != 2 && square.length != 3) false
     else if (!alphabet.contains(square.charAt(0))) false
-    else if (!(square(1).asDigit >= 1)) false
+    else if (!(square.tail.toInt >= 1)) false
     else true
   }
 }
