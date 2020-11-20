@@ -4,6 +4,8 @@ import java.util.{InputMismatchException, Scanner}
 
 import board.{Board, Ship, Square}
 
+import scala.util.Random
+
 
 object Game extends App {
 
@@ -21,12 +23,12 @@ object Game extends App {
     placeShip(board, board.ships.indexOf(sh))
   })
 
-  println("Player 2 - You may place your ships")
+//  println("Player 2 - You may place your ships")
 
   board2.ships.foreach(sh => {
-    println("Player 2 - Ship " + (board2.ships.indexOf(sh) + 1) + ": " + sh.toString)
-    placeShip(board2, board2.ships.indexOf(sh))
+    aiPlaceShip(board2, board2.ships.indexOf(sh))
   })
+  board2.ships.foreach(ship => ship.printSquares)
 
   playTillSunk(1)
 
@@ -39,6 +41,15 @@ object Game extends App {
       getSquare
       }
     }
+  def aiGetSquareIndex: Int = {
+    val rand = new Random
+    rand.nextInt(board.squareList.length)
+  }
+
+  def getRandom(limit: Int): Int = {
+    val rand = new Random
+    rand.nextInt(limit)
+  }
 
   def getBoardSize: Int = {
     def getInt: Int = {
@@ -131,6 +142,29 @@ object Game extends App {
     }
     val backIndex = getBackIndex(getSquareIndex(getSquare))
 
+    val allIndexes = {
+      board.getAllSquaresInLine(board.ships(shipNo).length,board.squareList(frontIndex), board.squareList(backIndex)).map(sq => board.squareList.indexOf(sq))
+    }
+    allIndexes.foreach(i => board.chooseSquare(allIndexes.indexOf(i),i, shipNo))
+  }
+
+  def aiPlaceShip(board: Board, shipNo: Int) = {
+    def pickSquare1(sNum: Int, index: Int): Int = {
+      if (board.squareList(index).containsShip) {
+        pickSquare1(sNum, aiGetSquareIndex)
+      }
+      else {
+        val possibles = board.dispPossiblePlaces(index, board.ships(shipNo).length)
+        if (possibles.isEmpty) {
+          pickSquare1(sNum, aiGetSquareIndex)
+        } else {
+          index
+        }
+      }
+    }
+    val frontIndex = pickSquare1(0, aiGetSquareIndex)
+    val possibles = board.dispPossiblePlaces(frontIndex, board.ships(shipNo).length)
+    val backIndex = board.squareList.indexOf(possibles(getRandom(possibles.length)))
     val allIndexes = {
       board.getAllSquaresInLine(board.ships(shipNo).length,board.squareList(frontIndex), board.squareList(backIndex)).map(sq => board.squareList.indexOf(sq))
     }
