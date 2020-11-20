@@ -4,6 +4,7 @@ import java.util.{InputMismatchException, Scanner}
 
 import board.{Board, Ship, Square}
 
+import scala.annotation.tailrec
 import scala.util.Random
 
 
@@ -22,8 +23,6 @@ object Game extends App {
     println("Player 1 - Ship " + (board.ships.indexOf(sh) + 1) + ": " + sh.toString)
     placeShip(board, board.ships.indexOf(sh))
   })
-
-//  println("Player 2 - You may place your ships")
 
   board2.ships.foreach(sh => {
     aiPlaceShip(board2, board2.ships.indexOf(sh))
@@ -96,7 +95,14 @@ object Game extends App {
           shoot(board, getTarget, acc + 1)
         }
       }
+      case "sink" => {
+        if (!(board.ships.count(ship => ship.sunk) >= board.ships.length)) {
+          println("Shoot again!")
+          shoot(board, getTarget, acc + 1)
+        }
+      }
       case "fail" =>  {
+        println("You have already shot at that square")
         println("please specify a new target")
         shoot(board, getTarget, acc)
       }
@@ -106,7 +112,9 @@ object Game extends App {
       shot match {
         case "hit" =>
         case "miss" =>
+        case "sink" =>
         case "fail" => {
+          println("You have already shot at that square")
           println("please specify a new target")
           shoot(board, getTarget, acc + 1)
         }
@@ -114,18 +122,24 @@ object Game extends App {
     }
   }
 
+  @tailrec
   def aiShoot(board: Board, target: String, acc: Int): Unit = {
     val shot = board.shoot(target)
     if (acc == 0) {
       shot match {
         case "hit" => {
+          println("Opponent hits " + target)
+          val adjacents = board.squareList.filter(sq => board.isAdjacent(board.squareList.indexOf(sq), board.calcIndex(target)))
+          aiShoot(board, adjacents(getRandom(adjacents.length)).toString, acc + 1)
+        }
+        case "sink" => {
           if (!(board.ships.count(ship => ship.sunk) >= board.ships.length)) {
             println("Opponent hits " + target)
-            shoot(board, getAiTarget, acc + 1)
+            aiShoot(board, getAiTarget, acc + 1)
           }
         }
         case "fail" =>  {
-          shoot(board, getAiTarget, acc)
+          aiShoot(board, getAiTarget, acc)
         }
         case "miss" => println("Opponent misses " + target)
       }
@@ -133,9 +147,10 @@ object Game extends App {
       shot match {
         case "hit" => println("Opponent hits " + target)
         case "miss" => println("Opponent misses " + target)
+        case "sink" =>
         case "fail" => {
           println("please specify a new target")
-          shoot(board, getAiTarget, acc + 1)
+          aiShoot(board, getAiTarget, acc + 1)
         }
       }
     }
