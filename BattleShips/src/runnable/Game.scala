@@ -28,7 +28,6 @@ object Game extends App {
   board2.ships.foreach(sh => {
     aiPlaceShip(board2, board2.ships.indexOf(sh))
   })
-  board2.ships.foreach(ship => ship.printSquares)
 
   playTillSunk(1)
 
@@ -82,6 +81,10 @@ object Game extends App {
       getTarget
     }
   }
+  def getAiTarget: String = {
+    val rand = new Random
+    board.squareList(rand.nextInt(board.squareList.length)).toString
+  }
 
   def shoot(board: Board, target: String, acc: Int): Unit = {
     val shot = board.shoot(target)
@@ -106,6 +109,33 @@ object Game extends App {
         case "fail" => {
           println("please specify a new target")
           shoot(board, getTarget, acc + 1)
+        }
+      }
+    }
+  }
+
+  def aiShoot(board: Board, target: String, acc: Int): Unit = {
+    val shot = board.shoot(target)
+    if (acc == 0) {
+      shot match {
+        case "hit" => {
+          if (!(board.ships.count(ship => ship.sunk) >= board.ships.length)) {
+            println("Opponent hits " + target)
+            shoot(board, getAiTarget, acc + 1)
+          }
+        }
+        case "fail" =>  {
+          shoot(board, getAiTarget, acc)
+        }
+        case "miss" => println("Opponent misses " + target)
+      }
+    } else {
+      shot match {
+        case "hit" => println("Opponent hits " + target)
+        case "miss" => println("Opponent misses " + target)
+        case "fail" => {
+          println("please specify a new target")
+          shoot(board, getAiTarget, acc + 1)
         }
       }
     }
@@ -189,12 +219,7 @@ object Game extends App {
     } else {
       println("")
       println(s"Turn ${(acc+1)/2}: Player 2")
-      if (acc > 1) {
-        println("Your shots so far:")
-        board.showShots
-      }
-      println("Choose a target")
-      shoot(board, getTarget, 0)
+      aiShoot(board, getAiTarget, 0)
       playTillSunk(acc + 1)
     }
   }
